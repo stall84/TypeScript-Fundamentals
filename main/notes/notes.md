@@ -17,3 +17,23 @@ _NOTE_ : Typescript types are all lower case, as shown below, not uppercase like
 ### Type Assignment and Inference
 
 - Typescript will **_infer_** the type when a variable is instantiated, as in: let numb = 1; ... however if you leave a variable only declared and not instantiated, you should explicitly type it as in: let numb: number .. later on in the code you can now do numb = 1;
+
+<hr/>
+
+### Objects In Typescript
+
+- Typescript objects are structured differently than regular js. Take a look at this photo: ![TS_Object](./ts_object.png)
+- The ts compiler infers the _object type_. Instead of key-value pairs, ts uses **_key-type_** pairs.
+- So object-types are present in TS to describe the _type_ of object being utilized. This allows (and requires) you to be detailed in describing your object.
+
+```
+const person: {
+    name: string;
+    age: number;
+} = {
+    name: 'Michael',
+    age: 36
+}
+```
+
+- The above code snippet is essentially what Typescript does when you give it an object.
