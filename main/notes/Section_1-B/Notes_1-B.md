@@ -51,3 +51,12 @@ function printResult(num: number): void {
 - _Technically speaking_, and maybe somewhat confusingly: The above functions return type is void, however if you typeof(printResult(3)), it will be _undefined_ . This is because javascript uses undefined to signify what is essentially a void return type. You _cannot_ however assign undefined as a functions return type _when nothing is returned_ (you can however set variables to undefined type and set a functions return type as undefined **_IF_** it returns something out of the body).
 
 ### Functions as Types
+
+- Values can be typed as Functions in TS. This can be especially useful when you want a specific type of function to control the behavior of your code. The below image snippet is the basic use of a generic Funtion type. and below that we'll go in to being even more specific with your function types.
+  ![FUNCS2](./func2_ts.png)
+
+- Using what looks similar (_but not the same as_) arrow functions, we can specify exactly the shape of function type we want to allow.
+  ![FUNCS3](./func3_ts.png)
+
+- In the same way as above we can also specify the funtion type shape for callbacks used in functions.
+  ![FUNCS4](./func4_ts.png)
