@@ -1,44 +1,25 @@
+let userInput: unknown;
+let userName: string;
 
-function adder(n1: number, n2: number) {
-    return n1 + n2;
+userInput = 5;
+userInput = false;
+userInput = 'Mike';
+
+if (typeof userInput === 'string') {
+    userName = userInput;
+}
+console.log(userName);
+
+function generateError(message: string, code: number) {
+    throw {message: message, errorCode: code};
 }
 
-// Functions as Types
+generateError('An Error Occurred', 500);  // This will throw an error 
+                                          // in the console at runtime
 
-let combineValues;
-
-combineValues = adder;                  // Normal Javascript. Assigning a pointer to a function to a function
-
-combineValues = 43;                     // However this could happen later in the code, which will then cause the call
-                                        // to throw an error. To prevent this, we want to type combineValues as a function.
-
-//console.log(combineValues(8, 8));       // Error!
-
-
-let typedCombVals: Function;            // Capital F
-
-typedCombVals = adder;
-
-console.log(typedCombVals(8,8));        // 16
-
-// However we CAN be more explicit .. Above we're saying typedCombVals can be ANY type of Function..
-// But we probably want to be more specific:
-
-let strictTypedCombVals: (a: number, b: number) => number;  
-// Says strictTypedCombVals accepts a function with strictly two parameters, both taking numbers,
-// and returns a number type 
-
-strictTypedCombVals = adder;
-
-console.log(strictTypedCombVals(8,8));  //16
-
-// function types with callbacks
-
-function addAndHandle(n1: number, n2: number, callback: (num: number) => void) {
-    const result = n1 + n2;
-    callback(result);
-}
-
-addAndHandle(10, 20, (result) => {
-    console.log(result);                        //30
-})
+// However when we check the console for
+// this below.. nothing is returned (not even 'undefined')
+// The reason is because generateError's return type is 'never' <---**
+let errResult = generateError('Another Error Occurred', 505);  
+                                                                
+console.log(errResult);                                         
