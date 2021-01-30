@@ -1,13 +1,25 @@
+let userInput: unknown;
+let userName: string;
 
-function adder(n1: number, n2: number) {
-    return n1 + n2;
+userInput = 5;
+userInput = false;
+userInput = 'Mike';
+
+if (typeof userInput === 'string') {
+    userName = userInput;
+}
+console.log(userName);
+
+function generateError(message: string, code: number) {
+    throw {message: message, errorCode: code};
 }
 
-// Functions as Types
+generateError('An Error Occurred', 500);  // This will throw an error 
+                                          // in the console at runtime
 
-let combineValues;
-
-combineValues = adder;                  // Normal Javascript. Assigning a pointer to a function to a function
-
-console.log(combineValues(8, 8));       // 16
-
+// However when we check the console for
+// this below.. nothing is returned (not even 'undefined')
+// The reason is because generateError's return type is 'never' <---**
+let errResult = generateError('Another Error Occurred', 505);  
+                                                                
+console.log(errResult);                                         
