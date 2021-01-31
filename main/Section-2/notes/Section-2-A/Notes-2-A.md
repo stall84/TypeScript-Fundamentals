@@ -1,4 +1,4 @@
-# Typescript Notes Part 1 - Udemy Schwarmuller Course
+# Typescript Notes Section 2 - Udemy Schwarmuller Course
 
 ## Types - Core Concepts
 
