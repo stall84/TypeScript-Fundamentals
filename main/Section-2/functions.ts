@@ -43,3 +43,6 @@ function addAndHandle(n1: number, n2: number, callback: (num: number) => void) {
 addAndHandle(10, 20, (result) => {
     console.log(result);                        //30
 })
+
+console.log('Testing Exclude');
+console.log('Testing Exclude 2');
