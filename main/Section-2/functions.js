@@ -25,3 +25,5 @@ function addAndHandle(n1, n2, callback) {
 addAndHandle(10, 20, function (result) {
     console.log(result); //30
 });
+console.log('Testing Exclude');
+
