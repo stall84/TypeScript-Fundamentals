@@ -25,7 +25,7 @@
     // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
 
     /* Strict Type-Checking Options */
-    "strict": false,                           /* Enable all strict type-checking options. */
+    "strict": true,                           /* Enable all strict type-checking options. */
     // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
     // "strictNullChecks": true,              /* Enable strict null checks. */
     // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
@@ -70,6 +70,7 @@
   "exclude": [
     "node_modules", // This is the default setting.. including it for demo
     "Section-2",
-    "Section-3-A",
+    "Section-3",
+    "Section-4",
   ]
 }
