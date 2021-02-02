@@ -1,4 +1,4 @@
-# Typescript Notes Section 3 - Udemy Schwarmuller Course
+# Typescript Notes Section 5-A - Udemy Schwarmuller Course
 
 ## Classes and Interfaces
 
@@ -83,3 +83,56 @@ class Department {
 ```
 
 - The above will automatically create a private ID field and public name field when the class is instantiated as an object (and those values are passed in)
+
+### ReadOnly Fields
+
+- Can only be 'written-to' once on object initialization (through constructor). Thereafter, even when using Class methods, cannot be overwritten.
+
+```
+class Department {
+    constructor( private readonly id: string, public name: string) {
+
+    }
+}
+```
+
+### Inheritance
+
+- Useful for building sub-types of base Class.
+
+- Using the **_extends_** keyword, allows new class and it's later objects to inherit everything off of the parent.
+
+```
+class newDepartment extends Department {
+    // Technically don't need any constructor here
+}
+```
+
+- **_If no constructor_** is given to the inheriting class. The parent class's constructor will be used.
+
+- If however you do want to make a new constructor for the subclass, you have to use the **_super();_** keyword/function in the sub-class's constructor
+
+```
+class ITDepartment extends Department {
+    constructor(id: string) {
+        super(id, 'IT55');
+    }
+}
+```
+
+- This example shows using super with sub-class constructor as well. Here we are hardcoding a field just like we did in the code above. (note the position of params might be backwards from example)
+  ![INHERITANCE1](./Inheritance1_ts.png)
+
+### Overriding Properties & 'Protected' Modifier
+
+- There may be cases where you want a subclass to overried the fields and methods of the parent.
+- Use the **_protected_** modifier on a Parent Class's field that would otherwise be mod'd as _privte_ . Protected then will allow any inheriting class to 'write-to' that field. Otherwise it's not allowed by the inheriting class (only by the parent class and objects of the parent class)
+
+```
+class Department {
+    protected employees: string;
+    //...
+}
+```
+
+![INHERITANCE2](./Inheritance2_ts.png)
