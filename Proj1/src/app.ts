@@ -1,3 +1,45 @@
+// Project State Management
+
+class ProjectState {
+    private listeners: any[] = [];
+    private projects: any[] = [];
+    private static instance: ProjectState;
+
+    private constructor() {
+        // Create Singleton of this class
+        // By creating a Singleton, we're making sure
+        // that wherever in our code we want to access the state
+        // We will be getting the exact same object.
+    }
+
+    static getInstance() {
+        if (this.instance) {        // Check for singleton existence, return it if it's already existing
+            return this.instance;
+        }
+        this.instance = new ProjectState();
+        return this.instance;
+    }
+
+    addListener(listenerFn: Function) {
+        this.listeners.push(listenerFn);
+    }
+
+    addProject(title: string, description: string, numOfPeople: number) {
+        const newProject = {
+            id: Math.random().toString(),   // Note this isn't a production solution as you can get the same value more than once.
+            title: title,
+            description: description,
+            people: numOfPeople
+        };
+        this.projects.push(newProject);
+        for (const listernerFn of this.listeners) {
+            listernerFn(this.projects.slice())      // slice() to ensure original array state is not mutated, only a copy-array is returned.
+        }
+    }
+}
+
+const projectState = ProjectState.getInstance();        // This lives in the global state now so can be called from anywhere
+
 // Validation
 interface Validateable {
     value: string | number;
@@ -99,7 +141,7 @@ class ProjectInput {
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
             const [title, desc, people] = userInput;
-            console.log(title, desc, people);
+            projectState.addProject(title, desc, people);
         }
         this.clearInputs();
     }
@@ -132,16 +174,21 @@ class ProjectList {
         );
         this.element = importedNode.firstElementChild as HTMLElement;
         this.element.id = `${this.type}-projects`;
-        this.attach();
+        this.attach();  // Attach to DOM
+        this.renderContent();
     }
 
     private renderContent() {
-        //...
+        const listId = `${this.type}-projects-list` // In case we want to access the individual list items later
+        this.element.querySelector('ul')!.id = listId;
+        this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS';    // This will take the value off our constructor type param
     }
 
-    private attach() {
+    private attach() {  // Attach to DOM method
         this.hostElement.insertAdjacentElement('beforeend', this.element);
     }
 }
 
 const projInput = new ProjectInput();
+const activePrjList = new ProjectList('active');
+const finishedPrjList = new ProjectList('finished');
