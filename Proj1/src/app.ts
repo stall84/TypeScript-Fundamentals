@@ -20,8 +20,8 @@ class ProjectState {
         return this.instance;
     }
 
-    addListener(listenerFn: Function) {
-        this.listeners.push(listenerFn);
+    addListener(listenerFn: Function) {         // We'll use this to push new listerner functions into our listerner array. 
+        this.listeners.push(listenerFn);        // Ulitmately will allow 'subscription' to state changes.
     }
 
     addProject(title: string, description: string, numOfPeople: number) {
@@ -32,9 +32,9 @@ class ProjectState {
             people: numOfPeople
         };
         this.projects.push(newProject);
-        for (const listernerFn of this.listeners) {
-            listernerFn(this.projects.slice())      // slice() to ensure original array state is not mutated, only a copy-array is returned.
-        }
+        for (const listenerFn of this.listeners) {  // Loop through available listerner functions
+            listenerFn(this.projects.slice());      // slice() to ensure original array state is not mutated, only a copy-array is returned.
+        }                                           // This is the 'subscription'. All listerner functions get a brand new copy of the new state (project).
     }
 }
 
@@ -140,10 +140,10 @@ class ProjectInput {
         event.preventDefault();
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
-            const [title, desc, people] = userInput;
-            projectState.addProject(title, desc, people);
+            const [title, desc, people] = userInput;            // Destructure Project fields
+            projectState.addProject(title, desc, people);       // Push new project (state) onto our state management class 
+            this.clearInputs();
         }
-        this.clearInputs();
     }
 
     private configure() {
@@ -162,11 +162,12 @@ class ProjectList {
     templateElement: HTMLTemplateElement;
     hostElement: HTMLDivElement;
     element: HTMLElement;
-
+    assignedProjects: any[];
 
     constructor(private type: 'active' | 'finished') {
         this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
         this.hostElement = document.getElementById('app')! as HTMLDivElement;
+        this.assignedProjects = [];
 
         const importedNode = document.importNode(
             this.templateElement.content,
@@ -174,12 +175,30 @@ class ProjectList {
         );
         this.element = importedNode.firstElementChild as HTMLElement;
         this.element.id = `${this.type}-projects`;
+        
+                                                            // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
+        projectState.addListener((projects: any[]) => {    // Singleton state-management Class's listener function array (property). This is how you 'subscribe' to state changes sans-redux in a vanilla App.
+            this.assignedProjects = projects;
+            this.renderProjects();
+        });                              
+                                        
+
+
         this.attach();  // Attach to DOM
         this.renderContent();
     }
 
+    private renderProjects() {
+        const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+        for (const prjItem of this.assignedProjects) {
+            const listItem = document.createElement('li');
+            listItem.textContent = prjItem.title;
+            listEl.appendChild(listItem);
+        }
+    }
+
     private renderContent() {
-        const listId = `${this.type}-projects-list` // In case we want to access the individual list items later
+        const listId = `${this.type}-projects-list`                         // In case we want to access the individual list items later
         this.element.querySelector('ul')!.id = listId;
         this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS';    // This will take the value off our constructor type param
     }

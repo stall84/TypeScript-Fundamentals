@@ -22,8 +22,8 @@ class ProjectState {
             people: numOfPeople
         };
         this.projects.push(newProject);
-        for (const listernerFn of this.listeners) {
-            listernerFn(this.projects.slice());
+        for (const listenerFn of this.listeners) {
+            listenerFn(this.projects.slice());
         }
     }
 }
@@ -100,8 +100,8 @@ class ProjectInput {
         if (Array.isArray(userInput)) {
             const [title, desc, people] = userInput;
             projectState.addProject(title, desc, people);
+            this.clearInputs();
         }
-        this.clearInputs();
     }
     configure() {
         this.element.addEventListener('submit', this.submitHandler.bind(this));
@@ -115,11 +115,24 @@ class ProjectList {
         this.type = type;
         this.templateElement = document.getElementById('project-list');
         this.hostElement = document.getElementById('app');
+        this.assignedProjects = [];
         const importedNode = document.importNode(this.templateElement.content, true);
         this.element = importedNode.firstElementChild;
         this.element.id = `${this.type}-projects`;
+        projectState.addListener((projects) => {
+            this.assignedProjects = projects;
+            this.renderProjects();
+        });
         this.attach();
         this.renderContent();
+    }
+    renderProjects() {
+        const listEl = document.getElementById(`${this.type}-projects-list`);
+        for (const prjItem of this.assignedProjects) {
+            const listItem = document.createElement('li');
+            listItem.textContent = prjItem.title;
+            listEl.appendChild(listItem);
+        }
     }
     renderContent() {
         const listId = `${this.type}-projects-list`;
