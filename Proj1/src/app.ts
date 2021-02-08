@@ -1,8 +1,25 @@
+// Project Type
+// We want to be able to instantiate later so will use a Class instead of an Interface
+enum ProjectStatus {
+    Active,
+    Finished
+}
+class Project {
+    constructor(public id: string, 
+                public title: string, 
+                public description: string, 
+                public people: number, 
+                public status: ProjectStatus) {
+        
+    }
+}
+
 // Project State Management
+type Listener = ( items: Project[] ) => void;
 
 class ProjectState {
-    private listeners: any[] = [];
-    private projects: any[] = [];
+    private listeners: Listener[] = [];
+    private projects: Project[] = [];
     private static instance: ProjectState;
 
     private constructor() {
@@ -20,17 +37,18 @@ class ProjectState {
         return this.instance;
     }
 
-    addListener(listenerFn: Function) {         // We'll use this to push new listerner functions into our listerner array. 
+    addListener(listenerFn: Listener) {         // We'll use this to push new listerner functions into our listerner array. 
         this.listeners.push(listenerFn);        // Ulitmately will allow 'subscription' to state changes.
     }
 
     addProject(title: string, description: string, numOfPeople: number) {
-        const newProject = {
-            id: Math.random().toString(),   // Note this isn't a production solution as you can get the same value more than once.
-            title: title,
-            description: description,
-            people: numOfPeople
-        };
+        const newProject = new Project(
+            Math.random().toString(), 
+            title, 
+            description, 
+            numOfPeople, 
+            ProjectStatus.Active
+            );
         this.projects.push(newProject);
         for (const listenerFn of this.listeners) {  // Loop through available listerner functions
             listenerFn(this.projects.slice());      // slice() to ensure original array state is not mutated, only a copy-array is returned.
@@ -68,6 +86,30 @@ function validate(validateableInput: Validateable) {
         isValid = isValid && validateableInput.value <= validateableInput.max;
     }
     return isValid;
+}
+
+// Component Base Class
+class Component<T extends HTMLElement, U extends HTMLElement> {
+
+    templateElement: HTMLTemplateElement;
+    hostElement: T;
+    element: U;
+
+    constructor (templateId: string, hostElementId: string, newElementId?: string) {
+        this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+        this.hostElement = document.getElementById(hostElementId)! as T;
+
+        const importedNode = document.importNode(
+            this.templateElement.content,
+            true
+        );
+        this.element = importedNode.firstElementChild as U;
+        if (newElementId) {
+            this.element.id = newElementId;
+        }
+        
+    }
+
 }
 
 // ProjectInput Class
@@ -162,7 +204,7 @@ class ProjectList {
     templateElement: HTMLTemplateElement;
     hostElement: HTMLDivElement;
     element: HTMLElement;
-    assignedProjects: any[];
+    assignedProjects: Project[];
 
     constructor(private type: 'active' | 'finished') {
         this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
@@ -176,9 +218,15 @@ class ProjectList {
         this.element = importedNode.firstElementChild as HTMLElement;
         this.element.id = `${this.type}-projects`;
         
-                                                            // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
-        projectState.addListener((projects: any[]) => {    // Singleton state-management Class's listener function array (property). This is how you 'subscribe' to state changes sans-redux in a vanilla App.
-            this.assignedProjects = projects;
+                                                                // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
+        projectState.addListener((projects: Project[]) => {    // Singleton state-management Class's listener function array (property). This is how you 'subscribe' to state changes sans-redux in a vanilla App.
+            const relevantProjects = projects.filter(projs => {
+                if (this.type === 'active') {
+                   return projs.status === ProjectStatus.Active;    // If the Projects type is active
+                }
+                return projs.status === ProjectStatus.Finished;
+            })
+            this.assignedProjects = relevantProjects;
             this.renderProjects();
         });                              
                                         
@@ -190,6 +238,7 @@ class ProjectList {
 
     private renderProjects() {
         const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+        listEl.innerHTML = '';                              // setting the UL to empty string as quick-fix to double-rendering.
         for (const prjItem of this.assignedProjects) {
             const listItem = document.createElement('li');
             listItem.textContent = prjItem.title;
