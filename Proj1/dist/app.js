@@ -1,4 +1,18 @@
 "use strict";
+var ProjectStatus;
+(function (ProjectStatus) {
+    ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
+    ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
+})(ProjectStatus || (ProjectStatus = {}));
+class Project {
+    constructor(id, title, description, people, status) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.people = people;
+        this.status = status;
+    }
+}
 class ProjectState {
     constructor() {
         this.listeners = [];
@@ -15,12 +29,7 @@ class ProjectState {
         this.listeners.push(listenerFn);
     }
     addProject(title, description, numOfPeople) {
-        const newProject = {
-            id: Math.random().toString(),
-            title: title,
-            description: description,
-            people: numOfPeople
-        };
+        const newProject = new Project(Math.random().toString(), title, description, numOfPeople, ProjectStatus.Active);
         this.projects.push(newProject);
         for (const listenerFn of this.listeners) {
             listenerFn(this.projects.slice());
@@ -46,6 +55,17 @@ function validate(validateableInput) {
         isValid = isValid && validateableInput.value <= validateableInput.max;
     }
     return isValid;
+}
+class Component {
+    constructor(templateId, hostElementId, newElementId) {
+        this.templateElement = document.getElementById(templateId);
+        this.hostElement = document.getElementById(hostElementId);
+        const importedNode = document.importNode(this.templateElement.content, true);
+        this.element = importedNode.firstElementChild;
+        if (newElementId) {
+            this.element.id = newElementId;
+        }
+    }
 }
 class ProjectInput {
     constructor() {
@@ -120,7 +140,13 @@ class ProjectList {
         this.element = importedNode.firstElementChild;
         this.element.id = `${this.type}-projects`;
         projectState.addListener((projects) => {
-            this.assignedProjects = projects;
+            const relevantProjects = projects.filter(projs => {
+                if (this.type === 'active') {
+                    return projs.status === ProjectStatus.Active;
+                }
+                return projs.status === ProjectStatus.Finished;
+            });
+            this.assignedProjects = relevantProjects;
             this.renderProjects();
         });
         this.attach();
@@ -128,6 +154,7 @@ class ProjectList {
     }
     renderProjects() {
         const listEl = document.getElementById(`${this.type}-projects-list`);
+        listEl.innerHTML = '';
         for (const prjItem of this.assignedProjects) {
             const listItem = document.createElement('li');
             listItem.textContent = prjItem.title;
