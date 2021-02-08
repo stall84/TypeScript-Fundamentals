@@ -57,3 +57,29 @@ function useVehicle(vehicle: Vehicle) {
     } // instanceof is a normal JS operator
 }     
 useVehicle(v2);
+
+// Discriminating Unions
+interface Bird {
+    type: 'bird';   // literal type property
+    flyingSpeed: number;
+}
+interface Horse {
+    type: 'horse';      // literal type
+    runningSpeed: number;
+}
+type Animal = Bird | Horse;
+
+function moveAnimal (animal: Animal) {
+    let speed;
+    switch (animal.type) {      // Use a switch statement here to utilize our literal discriminator
+        case 'bird':
+            speed = animal.flyingSpeed;
+            break;
+        case 'horse':
+            speed = animal.runningSpeed;       
+    }
+    console.log('Moving with speed: ' + speed); 
+}
+// When you  all the above function you have to pass it an animal object.. Remember interfaces describe
+// the shape of objects
+moveAnimal({type: 'bird', flyingSpeed: 18});    // Logs 'Moving with speed: 18'
