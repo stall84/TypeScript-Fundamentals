@@ -37,7 +37,7 @@ class Person {
 
 - Decorators can be chained. Or at least multiple Decorators can be attached to a class. **They execute from the bottom up, i.e. the Decorator closest to the class will run first.**
 
-### Property Decorators
+#### Property Decorators
 
 - Decorators aren't limited only to Classes.
 
@@ -45,10 +45,20 @@ class Person {
 
 ![DECOPROP](./decoprop.png)
 
-### Accesor and Parameter Decorators
+#### Accesor and Parameter Decorators
 
 - Can also be applied to getters/setters and parameters.
 
 - Both Accessor and Parameter (method) Decorators **_take 3 arguments: the target, the name, the descriptor_**
 
 ![DECOPROP2](./decoprop2.png)
+
+- Parameter Decorators take 3 arguments: **_target, name, and numerical position of the parameter_**
+
+![DECO4](./deco4.png)
+
+#### Execution Order
+
+- It's important to keep in mind that **_All decorators will execute when the class is defined. They do not execute at runtime when a method is called, etc _**
+
+- They can of course be configured to execute when you call methods or at runtime (for instance when working with binding listeners).. But by default they do not

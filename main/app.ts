@@ -62,6 +62,12 @@ function Log3(target: any, name: string | symbol, description: PropertyDescripto
     console.log(name);
     console.log(description);
 }
+function Log4(target: any, name: string | symbol, position: number) {
+    console.log('Parameter Decorator');
+    console.log(target);
+    console.log(name);
+    console.log(position);
+}
 class Product {
     title: string;
     private _price: number;
@@ -74,12 +80,12 @@ class Product {
             throw new Error('Invalid Price, must be greater than 0')
         }
     }
-    constructor(title: string, price: number) {
+    constructor( title: string, price: number) {
         this.title = title;
         this._price = price;
     }
     @Log3
-    getPriceWithTax(tax: number) {
+    getPriceWithTax(@Log4 tax: number) {
        return this._price * (1 + tax); 
     }
 }
