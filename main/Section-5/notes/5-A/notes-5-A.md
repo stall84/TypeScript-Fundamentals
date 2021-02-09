@@ -5,7 +5,7 @@
 ### Constructors
 
 - Initialize instance objects of classes. In the converted javascript, there are no fields like there are in Typescript. So all field assignments will appear in the constructor in ES6.
-- Going further back to ES5 things get wonky.. ES5 and before will attempt to use constructor functions (factory functions). So those are not going to look _anything_ like modern class syntax. Shown below first is the modern class syntax we use in Typescript. Below that is an image of what the compiler transpiles that to for ES5 javascript.
+- Going further back to ES5 things get wonky.. ES5 and before will attempt to use constructor functions. So those are not going to look _anything_ like modern class syntax. Shown below first is the modern class syntax we use in Typescript. Below that is an image of what the compiler transpiles that to for ES5 javascript.
 
 ```
 class Department {
