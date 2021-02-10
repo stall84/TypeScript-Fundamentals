@@ -4,6 +4,9 @@ interface Draggable {                               // To implement dynamic drag
     dragEndHandler(event: DragEvent): void;         // will listen for the start of the drag event, and a 2nd that listens
 }                                                   // for the end of the drag event.
 interface DragTarget {
+    dragOverHandler(event: DragEvent): void;
+    dropHandler(event: DragEvent): void;
+    dragLeaveHandler(event: DragEvent): void;       // If user aborts the drag, or drags over a non-dropable area
 
 }
 
@@ -224,7 +227,7 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
 }
 
 // Project Item Class - Details of what will be rendered in Project List
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements Draggable {
     
     private project: Project;
 
@@ -243,9 +246,20 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
         this.configure();
         this.renderContent();
     }
-    configure() {
 
+    configure() {
+        this.element.addEventListener('dragstart', this.dragStartHandler.bind(this));
+        this.element.addEventListener('dragend', this.dragEndHandler.bind(this));
     }
+
+    dragStartHandler(event: DragEvent) {
+        console.log(event);
+    }
+
+    dragEndHandler(_: DragEvent) {
+        console.log('DragEnd');
+    }
+
     renderContent() {
         this.element.querySelector('h2')!.textContent = this.project.title;
         this.element.querySelector('h3')!.textContent = this.persons + ' assigned';     // Use our getter above to determine output
