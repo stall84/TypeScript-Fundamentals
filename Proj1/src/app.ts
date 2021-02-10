@@ -1,3 +1,12 @@
+// Drag & Drop Interfaces
+interface Draggable {                               // To implement dynamic draggability in a Vanilla JS app like this
+    dragStartHandler(event: DragEvent): void;       // You'll have to create event listeners. Usually one listener that 
+    dragEndHandler(event: DragEvent): void;         // will listen for the start of the drag event, and a 2nd that listens
+}                                                   // for the end of the drag event.
+interface DragTarget {
+
+}
+
 // Project Type
 // We want to be able to instantiate later so will use a Class instead of an Interface
 enum ProjectStatus {
@@ -65,36 +74,6 @@ class ProjectState extends State<Project> {
 
 const projectState = ProjectState.getInstance();        // This lives in the global state now so can be called from anywhere
 
-// Validation
-interface Validateable {
-    value: string | number;
-    required?: boolean;
-    minLength?: number;
-    maxLength?: number;
-    min?: number;
-    max?: number;
-}
-
-function validate(validateableInput: Validateable) {
-    let isValid = true;
-    if (validateableInput.required) {
-        isValid = isValid && validateableInput.value.toString().trim().length !== 0;
-    }
-    if (validateableInput.minLength != null && typeof validateableInput.value === 'string') {
-        isValid = isValid && validateableInput.value.length >= validateableInput.minLength;
-    }
-    if (validateableInput.maxLength != null && typeof validateableInput.value === 'string') {
-        isValid = isValid && validateableInput.value.length <= validateableInput.maxLength;
-    }
-    if (validateableInput.min != null && typeof validateableInput.value === 'number') {
-        isValid = isValid && validateableInput.value >= validateableInput.min;
-    }
-    if (validateableInput.max != null && typeof validateableInput.value === 'number') {
-        isValid = isValid && validateableInput.value <= validateableInput.max;
-    }
-    return isValid;
-}
-
 // Generic - Component Base Class
 // ** This class is going to be an abstract class for UI rendering. Trying to make it as flexible as possible to 
 // ** extend our other classes which will implement their own detail as to specific config and rendering. 
@@ -134,6 +113,37 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     abstract renderContent(): void;
 
 }
+
+// Validation
+interface Validateable {
+    value: string | number;
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+}
+
+function validate(validateableInput: Validateable) {
+    let isValid = true;
+    if (validateableInput.required) {
+        isValid = isValid && validateableInput.value.toString().trim().length !== 0;
+    }
+    if (validateableInput.minLength != null && typeof validateableInput.value === 'string') {
+        isValid = isValid && validateableInput.value.length >= validateableInput.minLength;
+    }
+    if (validateableInput.maxLength != null && typeof validateableInput.value === 'string') {
+        isValid = isValid && validateableInput.value.length <= validateableInput.maxLength;
+    }
+    if (validateableInput.min != null && typeof validateableInput.value === 'number') {
+        isValid = isValid && validateableInput.value >= validateableInput.min;
+    }
+    if (validateableInput.max != null && typeof validateableInput.value === 'number') {
+        isValid = isValid && validateableInput.value <= validateableInput.max;
+    }
+    return isValid;
+}
+
 
 // ProjectInput Class
 
@@ -213,6 +223,36 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
     }  
 }
 
+// Project Item Class - Details of what will be rendered in Project List
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+    
+    private project: Project;
+
+    get persons() {                                     // Good example of using a getter to transform
+        if (this.project.people === 1) {                // the data we need when we retrieve it. In this
+            return '1 person';                          // case the number of people on a project to transform
+        } else {                                        // the text output in renderContent below
+            return `${this.project.people} persons`;
+        }
+        }
+
+    constructor(hostId: string, project: Project) {
+        super('single-project', hostId, false, project.id);
+        this.project = project;
+
+        this.configure();
+        this.renderContent();
+    }
+    configure() {
+
+    }
+    renderContent() {
+        this.element.querySelector('h2')!.textContent = this.project.title;
+        this.element.querySelector('h3')!.textContent = this.persons + ' assigned';     // Use our getter above to determine output
+        this.element.querySelector('p')!.textContent = this.project.description;
+    }
+}
+
 // ProjectList Class
 
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
@@ -251,10 +291,8 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
         const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
         listEl.innerHTML = '';                              // setting the UL to empty string as quick-fix to double-rendering.
         for (const prjItem of this.assignedProjects) {
-            const listItem = document.createElement('li');
-            listItem.textContent = prjItem.title;
-            listEl.appendChild(listItem);
-        }
+            new ProjectItem(this.element.querySelector('ul')!.id, prjItem);      // After refactoring and creating ProjectItem class
+        }                                                   // Simply new it up in the foor loop passing params needed
     }
 }
 
