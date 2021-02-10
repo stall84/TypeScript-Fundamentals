@@ -149,6 +149,14 @@ class ProjectItem extends Component {
         }
     }
     configure() {
+        this.element.addEventListener('dragstart', this.dragStartHandler.bind(this));
+        this.element.addEventListener('dragend', this.dragEndHandler.bind(this));
+    }
+    dragStartHandler(event) {
+        console.log(event);
+    }
+    dragEndHandler(_) {
+        console.log('DragEnd');
     }
     renderContent() {
         this.element.querySelector('h2').textContent = this.project.title;
