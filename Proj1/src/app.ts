@@ -147,6 +147,20 @@ function validate(validateableInput: Validateable) {
     return isValid;
 }
 
+// autobind decorator
+function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+    const adjDescriptor: PropertyDescriptor = {
+      configurable: true,
+      get() {
+        const boundFn = originalMethod.bind(this);
+        return boundFn;
+      }
+    };
+    return adjDescriptor;
+  }
+  
+
 
 // ProjectInput Class
 
@@ -269,7 +283,7 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 
 // ProjectList Class
 
-class ProjectList extends Component<HTMLDivElement, HTMLElement> {
+class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {
     assignedProjects: Project[];
 
     constructor(private type: 'active' | 'finished') {
@@ -281,8 +295,24 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
         this.configure();
         this.renderContent();
     }
+    @autobind
+    dragOverHandler(_: DragEvent) {
+        const listEl = this.element.querySelector('ul')!;
+        listEl.classList.add('droppable');
+    }
 
-    configure() {                                                   // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
+    dropHandler(_: DragEvent) {
+
+    }
+
+    dragLeaveHandler(_: DragEvent) {
+
+    }
+
+    configure() {                
+        this.element.addEventListener('dragover', this.dragOverHandler);
+        this.element.addEventListener('dragleave', this.dragLeaveHandler);
+        this.element.addEventListener('drop', this.dropHandler);                                                               // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
         projectState.addListener((projects: Project[]) => {          // Singleton state-management Class's listener function array (property). This is how you 'subscribe' to state changes sans-redux in a vanilla App.
             const relevantProjects = projects.filter(projs => {
                 if (this.type === 'active') {
@@ -294,6 +324,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
             this.renderProjects();
         });                              
     }
+
 
     renderContent() {
         const listId = `${this.type}-projects-list`                         // In case we want to access the individual list items later
