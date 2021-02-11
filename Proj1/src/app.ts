@@ -69,6 +69,18 @@ class ProjectState extends State<Project> {
             ProjectStatus.Active
             );
         this.projects.push(newProject);
+        this.updateListeners();
+    }
+
+    moveProject(projectId: string, newStatus: ProjectStatus) {
+        const project = this.projects.find(prj => prj.id === projectId);
+        if (project) {
+            project.status = newStatus;
+            this.updateListeners();
+        }
+    }
+
+    private updateListeners() {
         for (const listenerFn of this.listeners) {  // Loop through available listerner functions
             listenerFn(this.projects.slice());      // slice() to ensure original array state is not mutated, only a copy-array is returned.
         }                                           // This is the 'subscription'. All listerner functions get a brand new copy of the new state (project).
@@ -267,7 +279,8 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
     }
 
     dragStartHandler(event: DragEvent) {
-        console.log(event);
+        event.dataTransfer!.setData('text/plain', this.project.id);
+        event.dataTransfer!.effectAllowed = 'move';
     }
 
     dragEndHandler(_: DragEvent) {
@@ -296,17 +309,23 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
         this.renderContent();
     }
     @autobind
-    dragOverHandler(_: DragEvent) {
-        const listEl = this.element.querySelector('ul')!;
-        listEl.classList.add('droppable');
+    dragOverHandler(event: DragEvent) {
+        if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+            event.preventDefault();     // Javascripts default behavior is to NOT allow dropping
+            const listEl = this.element.querySelector('ul')!;
+            listEl.classList.add('droppable');
+        }
     }
-
-    dropHandler(_: DragEvent) {
-
+    @autobind
+    dropHandler(event: DragEvent) {
+        event.preventDefault();
+        const prjId = event.dataTransfer!.getData('text/plain');
+        projectState.moveProject(prjId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished)
     }
-
+    @autobind
     dragLeaveHandler(_: DragEvent) {
-
+        const listEl = this.element.querySelector('ul')!;
+        listEl.classList.remove('droppable');       // Could also use .toggle() method
     }
 
     configure() {                
