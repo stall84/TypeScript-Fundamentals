@@ -69,6 +69,18 @@ class ProjectState extends State<Project> {
             ProjectStatus.Active
             );
         this.projects.push(newProject);
+        this.updateListeners();
+    }
+
+    moveProject(projectId: string, newStatus: ProjectStatus) {
+        const project = this.projects.find(prj => prj.id === projectId);
+        if (project) {
+            project.status = newStatus;
+            this.updateListeners();
+        }
+    }
+
+    private updateListeners() {
         for (const listenerFn of this.listeners) {  // Loop through available listerner functions
             listenerFn(this.projects.slice());      // slice() to ensure original array state is not mutated, only a copy-array is returned.
         }                                           // This is the 'subscription'. All listerner functions get a brand new copy of the new state (project).
@@ -146,6 +158,20 @@ function validate(validateableInput: Validateable) {
     }
     return isValid;
 }
+
+// autobind decorator
+function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+    const adjDescriptor: PropertyDescriptor = {
+      configurable: true,
+      get() {
+        const boundFn = originalMethod.bind(this);
+        return boundFn;
+      }
+    };
+    return adjDescriptor;
+  }
+  
 
 
 // ProjectInput Class
@@ -253,7 +279,8 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
     }
 
     dragStartHandler(event: DragEvent) {
-        console.log(event);
+        event.dataTransfer!.setData('text/plain', this.project.id);
+        event.dataTransfer!.effectAllowed = 'move';
     }
 
     dragEndHandler(_: DragEvent) {
@@ -269,7 +296,7 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 
 // ProjectList Class
 
-class ProjectList extends Component<HTMLDivElement, HTMLElement> {
+class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget {
     assignedProjects: Project[];
 
     constructor(private type: 'active' | 'finished') {
@@ -281,8 +308,30 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
         this.configure();
         this.renderContent();
     }
+    @autobind
+    dragOverHandler(event: DragEvent) {
+        if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+            event.preventDefault();     // Javascripts default behavior is to NOT allow dropping
+            const listEl = this.element.querySelector('ul')!;
+            listEl.classList.add('droppable');
+        }
+    }
+    @autobind
+    dropHandler(event: DragEvent) {
+        event.preventDefault();
+        const prjId = event.dataTransfer!.getData('text/plain');
+        projectState.moveProject(prjId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished)
+    }
+    @autobind
+    dragLeaveHandler(_: DragEvent) {
+        const listEl = this.element.querySelector('ul')!;
+        listEl.classList.remove('droppable');       // Could also use .toggle() method
+    }
 
-    configure() {                                                   // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
+    configure() {                
+        this.element.addEventListener('dragover', this.dragOverHandler);
+        this.element.addEventListener('dragleave', this.dragLeaveHandler);
+        this.element.addEventListener('drop', this.dropHandler);                                                               // BEFORE We attach render elements to DOM of NEW projects (new state) (but after initial render), we want to send a listener function (anonymous here) to our ProjectState
         projectState.addListener((projects: Project[]) => {          // Singleton state-management Class's listener function array (property). This is how you 'subscribe' to state changes sans-redux in a vanilla App.
             const relevantProjects = projects.filter(projs => {
                 if (this.type === 'active') {
@@ -294,6 +343,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
             this.renderProjects();
         });                              
     }
+
 
     renderContent() {
         const listId = `${this.type}-projects-list`                         // In case we want to access the individual list items later
