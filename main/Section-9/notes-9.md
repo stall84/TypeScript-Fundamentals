@@ -65,3 +65,37 @@ namespace App {
 ---
 
 ![ESM4](./esm4.png)
+
+### A Few Other Notes On ESM
+
+- You can of course 'bundle' exported elements coming out of the same file. For instance we have in our current code:
+
+```
+import { Validateable, validate } from '../util/validation.js';
+```
+
+- To make things easier if you want, you could 'bundle these like the following using the **_everything asterisk_**, thereby being able to dot-notate access the individual elements:
+
+```
+import * as Validation from '../util/validation.js';
+
+//...
+
+Validation.validate(//...);
+```
+
+- You can also **alias** anything using the **as** keyword as shown above. **_Which could be useful in avoiding name clashes_**
+
+- **Default Exports**: When you only have one element to export, you can use the **_export default_** modifier before the element and then where you import it, you know longer need the curly-brace syntax **_and the name you pick is essentially an alias now, since the default export isn't going to change. For the snippet below, we could have imported the name as anything, as Component is always what's the default_**
+
+```
+export default abstract class Component<T, U>{
+    //...
+}
+```
+
+- In the import file:
+
+```
+import WhateverYouWannaNameIt from '../components/Component.js';
+```
