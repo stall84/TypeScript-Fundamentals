@@ -28,6 +28,9 @@ form {
   text-align: center;
 }
 
-.blue {
-  background-color: aqua;
+.weatherbox {
+  width: 10rem;
+  height: 10rem;
+  background-color: bisque;
+  border: 1px solid #ff0062;
 }

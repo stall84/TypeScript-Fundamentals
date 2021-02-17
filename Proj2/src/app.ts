@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {GOOGLE_API_KEY} from './keys/apikey';
+import {GOOGLE_API_KEY, WEATHERBIT_KEY} from './keys/apikey';
 
 import { appState } from './state/appstate';
 
@@ -66,13 +66,57 @@ class MapComponent {
     }
 }
 
-// class WeatherPanel {
+class WeatherPanel {
+    divElement: HTMLDivElement;
+    checkButton: HTMLButtonElement;
 
-// }
+    constructor(){
+        this.divElement = document.getElementById('weather')! as HTMLDivElement;
+        this.checkButton = document.getElementById('geocheck') as HTMLButtonElement;
 
-const checkButton = document.getElementById('geocheck') as HTMLButtonElement;
-checkButton.addEventListener('click', () => {
-    console.log('Just Checking!')
-})
+        this.addRenderHandler();
+    }
+
+    addRenderHandler() {
+        this.checkButton.addEventListener('click', this.getForecastsCall.bind(this));
+    }
+
+    getForecastsCall(event: Event) {
+        event.preventDefault();
+        let userAddy = appState.coordinates;
+
+        axios.get(`
+            https://api.weatherbit.io/v2.0/forecast/daily?lat=${userAddy.lat}&lon=${userAddy.lng}&days=3&key=${WEATHERBIT_KEY.keyVal}
+        `)
+        .then((response) => {
+            if (!response.data) {
+                throw new Error('There was an error retrieving weather forecast')
+            }
+            console.log(response);
+        })
+        .catch((error) => {
+            alert(error.message);
+            console.log('Error: ' + error);
+        })
+    }
+
+    renderCoords() {
+        const coordData = appState.getCoordinates();
+        const latSpan = document.createElement('h3');
+        const lonSpan = document.createElement('h3');
+        latSpan.innerText = coordData.lat.toString();
+        lonSpan.innerText = coordData.lng.toString();
+        this.divElement.appendChild(latSpan);
+        this.divElement.appendChild(lonSpan);
+    }
+
+}
+
+// const checkButton = document.getElementById('geocheck') as HTMLButtonElement;
+// checkButton.addEventListener('click', () => {
+//     console.log('Just Checking!')
+// })
+
 
 new MapComponent();
+new WeatherPanel();
