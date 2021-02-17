@@ -4,7 +4,7 @@ html {
 
 #map {
   width: 90%;
-  height: 20rem;
+  height: 30rem;
   border: 1px solid #ccc;
   margin: 2rem auto;
   display: flex;
@@ -18,7 +18,7 @@ form {
   margin: 2rem auto;
 }
 
-#app {
+#weather {
   width: 80%;
   height: 10rem;
   margin: 3rem auto;
