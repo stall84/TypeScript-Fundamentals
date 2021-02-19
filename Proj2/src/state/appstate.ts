@@ -1,29 +1,23 @@
 // Application-Wide State Management
 
-// type WeatherbitResponse = {
-//     data: { valid_date: string;
-//             high_temp: number;
-//             low_temp: number;
-//             weather: {
-//                 description: string;
-//             } 
-//         }[]
-// }
+
 
 type GoogleCoordObj = {
     lat: number,
     lng: number
 }
 
-// class Forecast {
 
-//     constructor(
-//         public date: WeatherbitResponse,
-//         public high: WeatherbitResponse,
-//         public low: WeatherbitResponse,
-//         public desc: WeatherbitResponse
-//     ){}
-// }
+
+export class Forecast {
+    constructor(
+        public date: string,
+        public high: number,
+        public low: number,
+        public desc: string,
+        public icon: string
+    ){}
+}
 
 class GeoLocation {
 
@@ -40,6 +34,13 @@ class AppState  {
 
     private static instance: AppState;
     public coordinates: GeoLocation = {lat: 0, lng: 0} ;
+    public forecastData: Forecast = {
+        date: "",
+        high: 0,
+        low: 0,
+        desc: "",
+        icon: ""
+    }
 
     private constructor(
        
@@ -59,10 +60,19 @@ class AppState  {
             this.coordinates.lng = coordObj.lng
         )
     }
+    
+    addForecasts(forecastObj: Forecast ) {
+            this.forecastData.date = forecastObj.date;
+            this.forecastData.desc = forecastObj.desc;
+            this.forecastData.high = forecastObj.high;
+            this.forecastData.low = forecastObj.low;
+            this.forecastData.icon = forecastObj.icon;
+    }
 
     getCoordinates() { 
         return this.coordinates;
     }
+
 }
 
 export const appState = AppState.getInstance();

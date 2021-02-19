@@ -1,5 +1,9 @@
 import axios from 'axios';
 import {GOOGLE_API_KEY, WEATHERBIT_KEY} from './keys/apikey';
+import { Forecast } from './state/appstate';
+
+// import icons from './images/icons/a02d.png';
+import icons from './images/icons/*.png';
 
 import { appState } from './state/appstate';
 
@@ -78,21 +82,32 @@ class WeatherPanel {
     }
 
     addRenderHandler() {
-        this.checkButton.addEventListener('click', this.getForecastsCall.bind(this));
+        this.checkButton.addEventListener('click', this.iconTest.bind(this));
     }
 
     getForecastsCall(event: Event) {
         event.preventDefault();
-        let userAddy = appState.coordinates;
+        const userAddy = appState.coordinates;
+        
 
         axios.get(`
-            https://api.weatherbit.io/v2.0/forecast/daily?lat=${userAddy.lat}&lon=${userAddy.lng}&days=3&key=${WEATHERBIT_KEY.keyVal}
+            https://api.weatherbit.io/v2.0/forecast/daily?lat=${userAddy.lat}&lon=${userAddy.lng}&days=3&units=I&key=${WEATHERBIT_KEY.keyVal}
         `)
         .then((response) => {
             if (!response.data) {
                 throw new Error('There was an error retrieving weather forecast')
             }
-            console.log(response);
+            // console.log(response);
+            const wxResponse = new Forecast(
+                response.data.data[0].valid_date, 
+                response.data.data[0].high_temp, 
+                response.data.data[0].low_temp, 
+                response.data.data[0].weather.description,
+                response.data.data[0].weather.icon
+                );
+            appState.addForecasts(wxResponse);
+        
+            this.renderForecasts();
         })
         .catch((error) => {
             alert(error.message);
@@ -100,22 +115,26 @@ class WeatherPanel {
         })
     }
 
-    renderCoords() {
-        const coordData = appState.getCoordinates();
-        const latSpan = document.createElement('h3');
-        const lonSpan = document.createElement('h3');
-        latSpan.innerText = coordData.lat.toString();
-        lonSpan.innerText = coordData.lng.toString();
-        this.divElement.appendChild(latSpan);
-        this.divElement.appendChild(lonSpan);
+    renderForecasts() {
+        
+        document.getElementById('desc1')!.innerHTML = appState.forecastData.desc;
+        document.getElementById('date1')!.innerHTML = appState.forecastData.date;
+        document.getElementById('high1')!.innerHTML = appState.forecastData.high.toString();
+        document.getElementById('low1')!.innerHTML = appState.forecastData.low.toString();
+        document.getElementById('icon1')!.innerHTML = `https://www.weatherbit.io/static/img/icons/${appState.forecastData.icon}.png`
+        
     }
+
+    iconTest() {
+        const iconElement = document.getElementById('iconTest')! as HTMLImageElement;
+        iconElement.setAttribute('src', icons);
+    }
+
+    
 
 }
 
-// const checkButton = document.getElementById('geocheck') as HTMLButtonElement;
-// checkButton.addEventListener('click', () => {
-//     console.log('Just Checking!')
-// })
+
 
 
 new MapComponent();
