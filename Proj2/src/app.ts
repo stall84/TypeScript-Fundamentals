@@ -2,8 +2,28 @@ import axios from 'axios';
 import {GOOGLE_API_KEY, WEATHERBIT_KEY} from './keys/apikey';
 import { Forecast } from './state/appstate';
 
-// import icons from './images/icons/a02d.png';
-import icons from './images/icons/*.png';
+
+
+/**
+ * @description Utility Function to import statically / search for images required by the weather API call
+ */
+// function importAll(r) {
+//     let images = {};
+//     r.keys().map((item) => {
+//         images[item.replace('./', '')] = r(item);
+//         return images;
+//     });
+// }
+
+
+function importAll(r) {
+    let images = {};
+    r.keys().forEach((key) => {
+        return images[key] = r(key)
+    })
+}
+
+const imageMap = importAll(require.context('./images/icons', false, /\.(png)$/));
 
 import { appState } from './state/appstate';
 
@@ -125,9 +145,11 @@ class WeatherPanel {
         
     }
 
-    iconTest() {
+    iconTest(event: Event) {
+        event.preventDefault();
+        console.log('fired icon test');
         const iconElement = document.getElementById('iconTest')! as HTMLImageElement;
-        iconElement.setAttribute('src', icons);
+        iconElement.setAttribute('src', imageMap['./s04d.png']);
     }
 
     
