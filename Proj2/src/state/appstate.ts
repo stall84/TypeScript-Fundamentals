@@ -34,13 +34,14 @@ class AppState  {
 
     private static instance: AppState;
     public coordinates: GeoLocation = {lat: 0, lng: 0} ;
-    public forecastData: Forecast = {
-        date: "",
-        high: 0,
-        low: 0,
-        desc: "",
-        icon: ""
-    }
+    public forecastArray: Forecast[] = [];
+    // public forecastData: Forecast = {
+    //     date: "",
+    //     high: 0,
+    //     low: 0,
+    //     desc: "",
+    //     icon: ""
+    // }
 
     private constructor(
        
@@ -61,12 +62,13 @@ class AppState  {
         )
     }
     
-    addForecasts(forecastObj: Forecast ) {
-            this.forecastData.date = forecastObj.date;
-            this.forecastData.desc = forecastObj.desc;
-            this.forecastData.high = forecastObj.high;
-            this.forecastData.low = forecastObj.low;
-            this.forecastData.icon = forecastObj.icon;
+    addForecasts(forecastArr: Forecast[] ) {
+            this.forecastArray = forecastArr;
+            // this.forecastData.date = forecastObj.date;
+            // this.forecastData.desc = forecastObj.desc;
+            // this.forecastData.high = forecastObj.high;
+            // this.forecastData.low = forecastObj.low;
+            // this.forecastData.icon = forecastObj.icon;
     }
 
     getCoordinates() { 

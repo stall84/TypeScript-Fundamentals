@@ -1,33 +1,25 @@
 import axios from 'axios';
 import {GOOGLE_API_KEY, WEATHERBIT_KEY} from './keys/apikey';
 import { Forecast } from './state/appstate';
-
-
+import { appState } from './state/appstate';
 
 /**
  * @description Utility Function to import statically / search for images required by the weather API call
  */
-// function importAll(r) {
-//     let images = {};
-//     r.keys().map((item) => {
-//         images[item.replace('./', '')] = r(item);
-//         return images;
-//     });
-// }
 
+const context = require.context('./images/icons', true, /\.(png)$/);
 
-function importAll(r) {
-    let images = {};
-    r.keys().forEach((key) => {
-        return images[key] = r(key)
-    })
-}
+const imageMap = {};
 
-const imageMap = importAll(require.context('./images/icons', false, /\.(png)$/));
+context.keys().forEach((key) => {
+    return imageMap[key] = context(key);
+});
 
-import { appState } from './state/appstate';
+/********************************************************************************************************* */
 
-
+/**
+ * @description Typing the response from Google Geocode
+ */
 type GoogleGeocodeResponse = {
     results: { geometry: { location: {lat: number; lng: number} } }[];  // Custom safe-typing the response from Google
     status: 'OK' | 'ZERO_RESULTS' | 'INVALID_REQUEST';
@@ -102,7 +94,7 @@ class WeatherPanel {
     }
 
     addRenderHandler() {
-        this.checkButton.addEventListener('click', this.iconTest.bind(this));
+        this.checkButton.addEventListener('click', this.getForecastsCall.bind(this));
     }
 
     getForecastsCall(event: Event) {
@@ -117,15 +109,30 @@ class WeatherPanel {
             if (!response.data) {
                 throw new Error('There was an error retrieving weather forecast')
             }
-            // console.log(response);
-            const wxResponse = new Forecast(
-                response.data.data[0].valid_date, 
-                response.data.data[0].high_temp, 
-                response.data.data[0].low_temp, 
-                response.data.data[0].weather.description,
-                response.data.data[0].weather.icon
-                );
-            appState.addForecasts(wxResponse);
+            // console.log(response.data.data);
+            const responseArray = response.data.data;
+            const forecastArray: Forecast[] = [];
+
+            responseArray.forEach(forecastDay => {
+                let singleForecast = new Forecast(
+                    forecastDay.valid_date, 
+                    forecastDay.high_temp, 
+                    forecastDay.low_temp, 
+                    forecastDay.weather.description,
+                    forecastDay.weather.icon
+                    );
+                    forecastArray.push(singleForecast);
+            });
+            // console.log(forecastArray);
+            appState.addForecasts(forecastArray);
+            // const wxResponse = new Forecast(
+            //     response.data.data[0].valid_date, 
+            //     response.data.data[0].high_temp, 
+            //     response.data.data[0].low_temp, 
+            //     response.data.data[0].weather.description,
+            //     response.data.data[0].weather.icon
+            //     );
+            // appState.addForecasts(wxResponse);
         
             this.renderForecasts();
         })
@@ -136,13 +143,17 @@ class WeatherPanel {
     }
 
     renderForecasts() {
+        // const iconElement = document.getElementById('icon1')! as HTMLImageElement;
         
-        document.getElementById('desc1')!.innerHTML = appState.forecastData.desc;
-        document.getElementById('date1')!.innerHTML = appState.forecastData.date;
-        document.getElementById('high1')!.innerHTML = appState.forecastData.high.toString();
-        document.getElementById('low1')!.innerHTML = appState.forecastData.low.toString();
-        document.getElementById('icon1')!.innerHTML = `https://www.weatherbit.io/static/img/icons/${appState.forecastData.icon}.png`
+        // iconElement.setAttribute('src', imageMap[`./${appState.forecastData.icon}.png`]);
+        // document.getElementById('desc1')!.innerHTML = appState.forecastData.desc;
+        // document.getElementById('date1')!.innerHTML = appState.forecastData.date;
+        // document.getElementById('high1')!.innerHTML = appState.forecastData.high.toString();
+        // document.getElementById('low1')!.innerHTML = appState.forecastData.low.toString();
         
+        // console.log('AppState: ', appState.forecastArray);
+        let forecastBlock = new ForecastBlock(appState.forecastArray);
+        forecastBlock.logData();
     }
 
     iconTest(event: Event) {
@@ -156,6 +167,26 @@ class WeatherPanel {
 
 }
 
+class ForecastBlock {
+    icons: string[];
+    descriptions: string[];
+    date: string[];
+    highs: string[];
+    lows: string[];
+
+    constructor(forecastArr: Forecast[]){
+        this.icons = forecastArr.map(icon => icon.icon);
+        this.descriptions = forecastArr.map(desc => desc.desc);
+        this.date = forecastArr.map(date => date.date);
+        this.highs = forecastArr.map(high => high.high.toString());
+        this.lows = forecastArr.map(low => low.low.toString());
+    }
+    
+    logData() {
+        console.log('ForecastBlock: ', this.highs);
+    }
+
+}
 
 
 
