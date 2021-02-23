@@ -3,6 +3,8 @@ import { appState } from '../state/appstate';
 import axios from 'axios';
 import { GOOGLE_API_KEY } from '../keys/apikey';
 
+import { WeatherController } from './weather';
+
 /**
  * @description Typing the response from Google Geocode
  */
@@ -60,8 +62,10 @@ export class MapController {
                     zoom: 10
                   });
                   new google.maps.Marker({position: coordinates, map: map});
-                    
-                                          
+                                              
+            })
+            .then(() => {
+                WeatherController.getForecastsCall(event);       
             })
             .catch( (error) => {
                 alert(error.message);
