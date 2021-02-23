@@ -13,16 +13,16 @@ export class WeatherController {
 
     constructor(){
         this.divElement = document.getElementById('weather')! as HTMLDivElement;
-        this.checkButton = document.getElementById('geocheck') as HTMLButtonElement;
+        this.checkButton = document.getElementById('geocheck')! as HTMLButtonElement;
 
-        this.addRenderHandler();
+        // this.addRenderHandler();
     }
 
-    addRenderHandler() {
-        this.checkButton.addEventListener('click', this.getForecastsCall.bind(this));
-    }
+    // addRenderHandler() {
+    //     this.checkButton.addEventListener('click', this.getForecastsCall.bind(this));
+    // }
 
-    getForecastsCall(event: Event) {
+    static getForecastsCall(event: Event) {
         event.preventDefault();
         const userAddy = appState.coordinates;
         
@@ -58,14 +58,29 @@ export class WeatherController {
         })
     }
 
-    renderForecasts() {
+    static renderForecasts() {
+        const forecastHeader = document.createElement('h2');
+        forecastHeader.style.gridArea = 'header';
+        forecastHeader.style.textAlign = 'center';
+        forecastHeader.style.borderBottom = '0.3px solid black';
+        forecastHeader.innerText = 'Three Day Forecast';
+        document.getElementById('weather')!.insertAdjacentElement('afterbegin', forecastHeader);
+
+        const weatherboxes = document.querySelectorAll('.weatherbox');
+        weatherboxes.forEach(box => {
+            box.classList.replace('weatherbox', 'renderedWxBox');
+        });
+        
         document.getElementById('icon1')!.setAttribute('src', imageMap[`./${appState.forecastArray[0].icon}.png`]);
         document.getElementById('icon2')!.setAttribute('src', imageMap[`./${appState.forecastArray[1].icon}.png`]);
         document.getElementById('icon3')!.setAttribute('src', imageMap[`./${appState.forecastArray[2].icon}.png`]);
 
         document.getElementById('desc1')!.innerHTML = appState.forecastArray[0].desc;
+        document.getElementById('desc1')!.style.textAlign = 'center';
         document.getElementById('desc2')!.innerHTML = appState.forecastArray[1].desc;
+        document.getElementById('desc2')!.style.textAlign = 'center';
         document.getElementById('desc3')!.innerHTML = appState.forecastArray[2].desc;
+        document.getElementById('desc3')!.style.textAlign = 'center';
 
         document.getElementById('date1')!.innerHTML = 'Day: ' + appState.forecastArray[0].date.slice(5);
         document.getElementById('date2')!.innerHTML = 'Day: ' + appState.forecastArray[1].date.slice(5);
