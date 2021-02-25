@@ -68,7 +68,7 @@ input {
   height: 300px;
   margin: 1rem;
   padding: 0.6rem;
-  background-color: rgb(201, 235, 236);
+  background-color: rgba(201, 235, 236, 0.5);
   border: 0.3px solid grey;
   border-radius: 13%;
 }
